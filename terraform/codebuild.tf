@@ -57,7 +57,7 @@ resource "aws_codebuild_source_credential" "github_credential" {
 }
  
 # WebHook for GitHub to trigger build
-/*
+
 resource "aws_codebuild_webhook" "github_webhook" {
   project_name = aws_codebuild_project.app_build.name
   
@@ -72,5 +72,7 @@ resource "aws_codebuild_webhook" "github_webhook" {
       pattern = "main"
     }
   }
+
+  
 }
-*/
+
