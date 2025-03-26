@@ -1,16 +1,10 @@
-# CodeBuild Project for GitHub webhook integration
+# CodeBuild Project with webhook integration
 resource "aws_codebuild_project" "app_build" {
   name         = "${var.app_name}-build"
   service_role = aws_iam_role.codebuild_role.arn
   
-  # Explicitly set all artifact properties
   artifacts {
-    type                = "NO_ARTIFACTS"
-    name                = null
-    namespace_type      = null
-    packaging           = null
-    path                = null
-    encryption_disabled = null
+    type = "NO_ARTIFACTS"
   }
   
   environment {
@@ -39,27 +33,31 @@ resource "aws_codebuild_project" "app_build" {
     type            = "GITHUB"
     location        = "https://github.com/${var.github_owner}/${var.github_repo}.git"
     git_clone_depth = 1
-    buildspec       = "buildspec.yml"
-    # No auth block here, using aws_codebuild_source_credential instead
-  }
-  
-  # Force a full replacement instead of an update
-  lifecycle {
-    create_before_destroy = true
+    
+    # GitHub authentication - using source credential resource instead of inline
+    # auth {
+    #   type     = "OAUTH"
+    #   resource = var.github_token
+    # }
+    
+    buildspec = "buildspec.yml"
+    report_build_status = true
   }
 }
  
-# GitHub credentials resource
+# Source credentials for GitHub - separate resource
 resource "aws_codebuild_source_credential" "github_credential" {
   auth_type   = "PERSONAL_ACCESS_TOKEN"
   server_type = "GITHUB"
   token       = var.github_token
 }
  
-# WebHook for GitHub to trigger build
-
+# Webhook configuration for GitHub - with correct pattern for master branch
 resource "aws_codebuild_webhook" "github_webhook" {
   project_name = aws_codebuild_project.app_build.name
+  
+  # Explicitly set build type to BUILD
+  build_type = "BUILD"
   
   filter_group {
     filter {
@@ -67,12 +65,10 @@ resource "aws_codebuild_webhook" "github_webhook" {
       pattern = "PUSH"
     }
     
+    # Make sure this matches your actual branch name (master)
     filter {
       type    = "HEAD_REF"
-      pattern = "master"
+      pattern = "refs/heads/master"  # Use full reference format
     }
   }
-
-  
 }
-
