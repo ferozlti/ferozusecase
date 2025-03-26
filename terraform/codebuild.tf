@@ -69,7 +69,7 @@ resource "aws_codebuild_webhook" "github_webhook" {
     
     filter {
       type    = "HEAD_REF"
-      pattern = "main"
+      pattern = "master"
     }
   }
 
