@@ -1,0 +1,32 @@
+{
+  "family": "feroz-app",
+  "executionRoleArn": "arn:aws:iam::888577034475:role/feroz-app-ecs-task-execution-role",
+  "networkMode": "awsvpc",
+  "containerDefinitions": [
+    {
+      "name": "feroz-app-container",
+      "image": "<IMAGE_URI>",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 5000,
+          "hostPort": 5000,
+          "protocol": "tcp"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/feroz-app",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512"
+}
